@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {system = "i686-linux"; config = (import ./config.nix) compiler;}
+{ pkgs ? import <nixpkgs> {config = (import ./config.nix) compiler;}
 , compiler ? "ghc802", runCompiler ? true
 }:
 let
