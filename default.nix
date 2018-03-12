@@ -3,7 +3,7 @@
 }:
 let
 in pkgs.haskellPackages.mkDerivation {
-  pname = "heroku-comment-server";
+  pname = "MySC-Server";
   version = "0.1.0.0";
   src = ./.;
 
