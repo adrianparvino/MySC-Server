@@ -19,7 +19,8 @@
 
 module Main where
 
-import           DB
+import           DB.Comments
+import           MySC.Common.DB.Types
 import           HTML
 
 import qualified Data.Text as T

@@ -32,8 +32,6 @@ executable heroku-comment-server
                      , blaze-html
                      , clay
                      , aeson
+                     , mysc-common
   other-modules:       DB
                      , DB.Comments
-                     , DB.Types
-                     , HTML
-                     , HTML.Comments

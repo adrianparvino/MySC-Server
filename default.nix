@@ -1,9 +1,9 @@
-{ pkgs ? import <nixpkgs> {config = (import ./config.nix);}
-, haskellPackages
+{ pkgs ? import <nixpkgs> {}
+, haskellPackages ? pkgs.haskellPackages
 }:
 let
 in haskellPackages.mkDerivation {
-  pname = "MySC-Server";
+  pname = "mysc-server";
   version = "0.1.0.0";
   src = ./.;
 
