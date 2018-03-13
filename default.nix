@@ -1,16 +1,16 @@
-{ pkgs ? import <nixpkgs> {config = (import ./config.nix) compiler;}
-, compiler ? "ghc802", runCompiler ? true
+{ pkgs ? import <nixpkgs> {config = (import ./config.nix);}
+, haskellPackages
 }:
 let
-in pkgs.haskellPackages.mkDerivation {
+in haskellPackages.mkDerivation {
   pname = "MySC-Server";
   version = "0.1.0.0";
   src = ./.;
 
-  executableHaskellDepends = with pkgs.haskellPackages; [
+  executableHaskellDepends = with haskellPackages; [
     Spock transformers persistent persistent-template persistent-postgresql
     monad-logger text pwstore-fast bytestring resourcet hvect time
-    blaze-html clay aeson
+    blaze-html clay aeson mysc-common
   ];
 
   buildDepends = [];
