@@ -19,11 +19,14 @@
 
 module Main where
 
+import           Paths_mysc_server
 import           DB.Comments
 import           MySC.Common.DB.Types
 import           HTML
 
+import           System.Directory
 import qualified Data.Text as T
+import           Data.Monoid
 import           Control.Monad.IO.Class  (liftIO)
 import           Control.Monad.Logger
 import           Database.Persist hiding (get)
@@ -34,9 +37,10 @@ import           Web.Spock.Config
 import           Data.HVect
 import qualified Data.ByteString as B
 import           Data.Time
-import qualified Data.Text as T
 import           Control.Monad
 import           Text.Blaze.Html.Renderer.String
+import           Data.Text.Encoding
+import           Network.Mime
 
 connStr = "host=localhost dbname=comment user=comment password=comment port=5432"
 
@@ -69,6 +73,12 @@ commentSystem =
     get root $ do
       allPosts <- fmap (map (entityVal)) . runSQL $ selectList [] [Desc CommentDate]
       html . T.pack . renderHtml . withStyle defaultStyle . commentsToHTML $ allPosts
+    get "json" $ do
+      allPosts <- fmap (map (entityVal)) . runSQL $ selectList [] [Desc CommentDate]
+      json allPosts
+    get ("static" <//> var) $ \fileName -> do
+      fileName' <- liftIO $ getDataFileName $ "static/" <> fileName
+      file =<< (decodeUtf8 . defaultMimeLookup . T.pack) $ fileName'
     post root $ void $ do
       now <- liftIO $ getCurrentTime
       comment@(Comment _ _ _ _ Nothing Nothing) <- jsonBody'
