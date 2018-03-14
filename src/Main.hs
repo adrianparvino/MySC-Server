@@ -19,10 +19,10 @@
 
 module Main where
 
-import           Options.Applicative
-import           DB.Comments
 import           MySC.Common.DB.Types
-import           HTML
+import           DB
+
+import           Options.Applicative
 
 import           System.Directory
 import qualified Data.Text as T
@@ -32,14 +32,16 @@ import           Control.Monad.Logger
 import           Database.Persist hiding (get)
 import           Database.Persist.Postgresql hiding (get)
 import           Database.Persist.TH
-import           Web.Spock hiding (SessionId)
-import           Web.Spock.Config
 import           Data.HVect
 import qualified Data.ByteString as B
 import           Data.Time
 import           Control.Monad
+
 import           Text.Blaze.Html.Renderer.String
 import           Data.Text.Encoding
+
+import           Web.Spock hiding (SessionId)
+import           Web.Spock.Config
 import           Network.Mime
 
 connStr = "host=localhost dbname=comment user=comment password=comment port=5432"
@@ -78,9 +80,6 @@ type CommentAction ctx a = SpockActionCtx ctx SqlBackend SessionVal B.ByteString
 commentSystem :: String -> CommentSystem ()
 commentSystem dir =
   prehook baseHook $ do
-    get root $ do
-      allPosts <- fmap (map (entityVal)) . runSQL $ selectList [] [Desc CommentDate]
-      html . T.pack . renderHtml . withStyle defaultStyle . commentsToHTML $ allPosts
     get "json" $ do
       allPosts <- fmap (map (entityVal)) . runSQL $ selectList [] [Desc CommentDate]
       json allPosts

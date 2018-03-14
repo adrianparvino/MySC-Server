@@ -37,4 +37,3 @@ executable mysc-server
                      , directory
                      , mysc-common
   other-modules:       DB
-                     , DB.Comments
