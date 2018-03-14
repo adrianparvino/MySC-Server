@@ -1,7 +1,5 @@
 { pkgs ? import <nixpkgs> {}
 , haskellPackages ? pkgs.haskellPackages
-, hpkgs ? null
-, hjspkgs ? null
 }:
 let
 in haskellPackages.mkDerivation {
@@ -10,17 +8,13 @@ in haskellPackages.mkDerivation {
   src = ./.;
 
   executableHaskellDepends = with haskellPackages; [
-    Spock transformers persistent persistent-template persistent-postgresql
-    monad-logger text pwstore-fast bytestring resourcet hvect time
-    blaze-html clay aeson mysc-common mime-types directory
+    Spock transformers persistent persistent-template
+    persistent-postgresql monad-logger text pwstore-fast
+    bytestring resourcet hvect time blaze-html clay aeson
+    mysc-common optparse-applicative mime-types directory
   ];
 
   buildDepends = [];
-
-  preConfigure = ''
-    ${hpkgs.mysc-common}/bin/mysc-html > ./static/index.html
-    cp ${hjspkgs.mysc-client}/all.min.js ./static/all.min.js
-  '';
 
 #  buildTools = pkgs.stdenv.lib.optional runCompiler [pkgs.closurecompiler];
 #  

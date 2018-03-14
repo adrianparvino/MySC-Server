@@ -11,8 +11,6 @@ copyright:           2016 Author name here
 category:            Web
 build-type:          Simple
 cabal-version:       >=1.10
-data-files:          static/index.html
-                   , static/all.min.js
 
 executable mysc-server
   hs-source-dirs:      src
@@ -34,9 +32,9 @@ executable mysc-server
                      , blaze-html
                      , clay
                      , aeson
-                     , mysc-common
+                     , optparse-applicative
                      , mime-types
                      , directory
+                     , mysc-common
   other-modules:       DB
                      , DB.Comments
-                     , Paths_mysc_server

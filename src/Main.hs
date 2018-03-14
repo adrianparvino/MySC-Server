@@ -19,14 +19,14 @@
 
 module Main where
 
-import           Paths_mysc_server
+import           Options.Applicative
 import           DB.Comments
 import           MySC.Common.DB.Types
 import           HTML
 
 import           System.Directory
 import qualified Data.Text as T
-import           Data.Monoid
+import           Data.Semigroup ((<>))
 import           Control.Monad.IO.Class  (liftIO)
 import           Control.Monad.Logger
 import           Database.Persist hiding (get)
@@ -45,10 +45,18 @@ import           Network.Mime
 connStr = "host=localhost dbname=comment user=comment password=comment port=5432"
 
 main = do
+  let parser = (,)
+        <$> option auto ( short 'p'
+                       <> help "port"
+                       <> value 8080)
+        <*> strOption ( short 'd'
+                     <> help "static directory")
+  let opts = info (parser <**> helper) fullDesc
+  (port, dir) <- execParser opts
   pool <- runNoLoggingT $ createPostgresqlPool connStr 5
   runNoLoggingT $ runSqlPool (runMigration migrateAll) pool
   spockCfg <- defaultSpockCfg Nothing (PCPool pool) connStr
-  runSpock 8080 $ spock spockCfg commentSystem
+  runSpock port $ spock spockCfg $ commentSystem dir
   
 data BlogState
    = BlogState
@@ -67,8 +75,8 @@ type SessionVal = Maybe SessionId
 type CommentSystem ctx = SpockCtxM ctx SqlBackend SessionVal B.ByteString ()
 type CommentAction ctx a = SpockActionCtx ctx SqlBackend SessionVal B.ByteString a
 
-commentSystem :: CommentSystem ()
-commentSystem =
+commentSystem :: String -> CommentSystem ()
+commentSystem dir =
   prehook baseHook $ do
     get root $ do
       allPosts <- fmap (map (entityVal)) . runSQL $ selectList [] [Desc CommentDate]
@@ -77,8 +85,7 @@ commentSystem =
       allPosts <- fmap (map (entityVal)) . runSQL $ selectList [] [Desc CommentDate]
       json allPosts
     get ("static" <//> var) $ \fileName -> do
-      fileName' <- liftIO $ getDataFileName $ "static/" <> fileName
-      file =<< (decodeUtf8 . defaultMimeLookup . T.pack) $ fileName'
+      file =<< (decodeUtf8 . defaultMimeLookup . T.pack) $ dir <> fileName
     post root $ void $ do
       now <- liftIO $ getCurrentTime
       comment@(Comment _ _ _ _ Nothing Nothing) <- jsonBody'
