@@ -81,7 +81,7 @@ commentSystem :: String -> CommentSystem ()
 commentSystem dir =
   prehook baseHook $ do
     get "json" $ do
-      allPosts <- fmap (map (entityVal)) . runSQL $ selectList [] [Desc CommentDate]
+      allPosts <- fmap (map $ \(Entity k v) -> ((k, v) :: (CommentId, Comment))) . runSQL $ selectList [] [Desc CommentDate]
       json allPosts
     get ("static" <//> var) $ \fileName -> do
       file =<< (decodeUtf8 . defaultMimeLookup . T.pack) $ dir <> fileName
